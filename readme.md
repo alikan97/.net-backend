@@ -1,7 +1,7 @@
 # Questions
 
-[.] How (in-depth) do lists work ??
+- How (in-depth) do lists work ??
 
-[.] What are IEnumerables
+- What are IEnumerables
 
-[.] What are SingleOrDefaults
+- What are SingleOrDefaults
