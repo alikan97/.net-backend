@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Server.Entities;
+using System.Linq;
 using System;
-
 namespace Server.Repositories
 {
     public class InMenuItemsRepository
@@ -11,19 +11,19 @@ namespace Server.Repositories
             new Item {
                 Id = Guid.NewGuid(),
                 Name = "Potion",
-                Price = 9.0,
+                Price = 9.0M,
                 CreatedDate = DateTimeOffset.UtcNow
             },
             new Item {
                 Id = Guid.NewGuid(),
                 Name = "Sword",
-                Price = 20.0,
+                Price = 20.0M,
                 CreatedDate = DateTimeOffset.UtcNow
             },
             new Item {
                 Id = Guid.NewGuid(),
                 Name = "Shield",
-                Price = 12.0,
+                Price = 12.0M,
                 CreatedDate = DateTimeOffset.UtcNow
             },
         };
@@ -33,7 +33,7 @@ namespace Server.Repositories
         }
 
         public Item GetItem (Guid id) {
-            return items.Where(items => items.id == id).SingleOrDefault();
+            return items.Where(items => items.Id == id).SingleOrDefault();
         }
     }
 }

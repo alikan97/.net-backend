@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\alikh\\Documents\\Personal Projects\\C# - .NET\\Server\\Server.csproj": {}
+    "C:\\Users\\alikh\\Documents\\Personal Projects\\C# - .NET\\.net-backend\\Server\\Server.csproj": {}
   },
   "projects": {
-    "C:\\Users\\alikh\\Documents\\Personal Projects\\C# - .NET\\Server\\Server.csproj": {
+    "C:\\Users\\alikh\\Documents\\Personal Projects\\C# - .NET\\.net-backend\\Server\\Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\alikh\\Documents\\Personal Projects\\C# - .NET\\Server\\Server.csproj",
+        "projectUniqueName": "C:\\Users\\alikh\\Documents\\Personal Projects\\C# - .NET\\.net-backend\\Server\\Server.csproj",
         "projectName": "Server",
-        "projectPath": "C:\\Users\\alikh\\Documents\\Personal Projects\\C# - .NET\\Server\\Server.csproj",
+        "projectPath": "C:\\Users\\alikh\\Documents\\Personal Projects\\C# - .NET\\.net-backend\\Server\\Server.csproj",
         "packagesPath": "C:\\Users\\alikh\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\alikh\\Documents\\Personal Projects\\C# - .NET\\Server\\obj\\",
+        "outputPath": "C:\\Users\\alikh\\Documents\\Personal Projects\\C# - .NET\\.net-backend\\Server\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
