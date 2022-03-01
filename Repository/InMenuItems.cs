@@ -4,23 +4,26 @@ using System.Linq;
 using System;
 namespace Server.Repositories
 {
-    public class InMenuItemsRepository
+    public class InMenuItemsRepository : IInMenuItemsRepository
     {
         private readonly List<Item> items = new() //Traditionally new List<Item> but now redundant
         {
-            new Item {
+            new Item
+            {
                 Id = Guid.NewGuid(),
                 Name = "Potion",
                 Price = 9.0M,
                 CreatedDate = DateTimeOffset.UtcNow
             },
-            new Item {
+            new Item
+            {
                 Id = Guid.NewGuid(),
                 Name = "Sword",
                 Price = 20.0M,
                 CreatedDate = DateTimeOffset.UtcNow
             },
-            new Item {
+            new Item
+            {
                 Id = Guid.NewGuid(),
                 Name = "Shield",
                 Price = 12.0M,
@@ -28,11 +31,13 @@ namespace Server.Repositories
             },
         };
 
-        public IEnumerable<Item> GetItems() {
+        public IEnumerable<Item> GetItems()
+        {
             return items;
         }
 
-        public Item GetItem (Guid id) {
+        public Item GetItem(Guid id)
+        {
             return items.Where(items => items.Id == id).SingleOrDefault();
         }
     }
