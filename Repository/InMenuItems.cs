@@ -40,5 +40,22 @@ namespace Server.Repositories
         {
             return items.Where(items => items.Id == id).SingleOrDefault();
         }
+
+        public void createItem(Item item)
+        {
+            items.Add(item);
+        }
+
+        public void updateItem(Item item)
+        {
+            var index = items.FindIndex(existingItem => existingItem.Id == item.Id);
+            items[index] = item;
+        }
+
+        public void deleteItem(Guid id)
+        {
+            var index = items.FindIndex(existingItem => existingItem.Id == id);
+            items.RemoveAt(index);
+        }
     }
 }

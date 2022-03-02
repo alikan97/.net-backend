@@ -35,5 +35,47 @@ namespace Server.Controllers
             }
             return Ok(item.AsDto());
         }
+
+        // POST items
+        [HttpPost]
+        public ActionResult<ItemDto> CreateItem (CreateItemDto itemDto) { // Conventional to return the created Dto on successful POST
+            Item item = new() {
+                Id = Guid.NewGuid(),
+                Name = itemDto.Name,
+                Price = itemDto.Price,
+                CreatedDate = DateTimeOffset.UtcNow,
+            };
+
+            repository.createItem(item);
+            return CreatedAtAction(nameof(GetItem), new { id= item.Id }, item.AsDto()); // What is this anonymous type new {id=item.id}...
+        }
+
+        // PUT Items/id
+        [HttpPut("{id}")]
+        public ActionResult updateItem(Guid id, updateItemDto itemDto) {
+            var existingItem = repository.GetItem(id);
+
+            if (existingItem is null) {
+                return NotFound();
+            }
+
+            Item updatedItem = existingItem with {
+                Name = itemDto.Name,
+                Price= itemDto.Price, 
+            };
+
+            repository.updateItem(updatedItem);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult deleteItem(Guid id) {
+            var existingItem = repository.GetItem(id);
+            if (existingItem is null) {
+                return NotFound();
+            }
+            repository.deleteItem(id);
+            return NoContent();
+        }
     }
 }
