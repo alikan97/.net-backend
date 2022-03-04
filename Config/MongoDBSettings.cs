@@ -5,7 +5,7 @@ namespace Server.Settings
         public string Host { get; set; }
         public int Port { get; set; }
         public string User { get; set; }
-        private const string Password = "Abcd1234";
+        public string Password { get; set; }
         public string ConnectionString 
         {
             get

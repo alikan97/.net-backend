@@ -1,61 +1,63 @@
-using System.Collections.Generic;
-using Server.Entities;
-using System.Linq;
-using System;
-namespace Server.Repositories
-{
-    public class InMenuItemsRepository : IInMenuItemsRepository
-    {
-        private readonly List<Item> items = new() //Traditionally new List<Item> but now redundant
-        {
-            new Item
-            {
-                Id = Guid.NewGuid(),
-                Name = "Potion",
-                Price = 9.0M,
-                CreatedDate = DateTimeOffset.UtcNow
-            },
-            new Item
-            {
-                Id = Guid.NewGuid(),
-                Name = "Sword",
-                Price = 20.0M,
-                CreatedDate = DateTimeOffset.UtcNow
-            },
-            new Item
-            {
-                Id = Guid.NewGuid(),
-                Name = "Shield",
-                Price = 12.0M,
-                CreatedDate = DateTimeOffset.UtcNow
-            },
-        };
+// using System.Collections.Generic;
+// using Server.Entities;
+// using System.Linq;
+// using System;
+// using System.Threading.Tasks;
 
-        public IEnumerable<Item> GetItems()
-        {
-            return items;
-        }
+// namespace Server.Repositories
+// {
+//     public class InMenuItemsRepository : IInMenuItemsRepository
+//     {
+//         private readonly List<Item> items = new() //Traditionally new List<Item> but now redundant
+//         {
+//             new Item
+//             {
+//                 Id = Guid.NewGuid(),
+//                 Name = "Potion",
+//                 Price = 9.0M,
+//                 CreatedDate = DateTimeOffset.UtcNow
+//             },
+//             new Item
+//             {
+//                 Id = Guid.NewGuid(),
+//                 Name = "Sword",
+//                 Price = 20.0M,
+//                 CreatedDate = DateTimeOffset.UtcNow
+//             },
+//             new Item
+//             {
+//                 Id = Guid.NewGuid(),
+//                 Name = "Shield",
+//                 Price = 12.0M,
+//                 CreatedDate = DateTimeOffset.UtcNow
+//             },
+//         };
 
-        public Item GetItem(Guid id)
-        {
-            return items.Where(items => items.Id == id).SingleOrDefault();
-        }
+//         public IEnumerable<Item> GetItemsAsync()
+//         {
+//             return items;
+//         }
 
-        public void createItem(Item item)
-        {
-            items.Add(item);
-        }
+//         public Item GetItemAsync(Guid id)
+//         {
+//             return items.Where(items => items.Id == id).SingleOrDefault();
+//         }
 
-        public void updateItem(Item item)
-        {
-            var index = items.FindIndex(existingItem => existingItem.Id == item.Id);
-            items[index] = item;
-        }
+//         public Task createItemAsync(Item item)
+//         {
+//             items.Add(item);
+//         }
 
-        public void deleteItem(Guid id)
-        {
-            var index = items.FindIndex(existingItem => existingItem.Id == id);
-            items.RemoveAt(index);
-        }
-    }
-}
+//         public void updateItemAsync(Item item)
+//         {
+//             var index = items.FindIndex(existingItem => existingItem.Id == item.Id);
+//             items[index] = item;
+//         }
+
+//         public void deleteItemAsync(Guid id)
+//         {
+//             var index = items.FindIndex(existingItem => existingItem.Id == id);
+//             items.RemoveAt(index);
+//         }
+//     }
+// }
