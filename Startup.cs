@@ -11,7 +11,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver;
 using Server.Repositories;
+using Server.Settings;
 
 namespace Server
 {
@@ -27,7 +32,15 @@ namespace Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IInMenuItemsRepository,InMenuItemsRepository>();
+            BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
+            BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
+
+            services.AddSingleton<IMongoClient>(serviceProver =>
+            {
+                var settings = Configuration.GetSection(nameof(MongoDBSettings)).Get<MongoDBSettings>();
+                return new MongoClient(settings.ConnectionString);
+            });
+            services.AddSingleton<IInMenuItemsRepository,MongoDBItemsRepository>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

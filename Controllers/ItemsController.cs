@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using Server.Dtos;
-
 namespace Server.Controllers
 {
     [ApiController]
