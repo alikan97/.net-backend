@@ -29,3 +29,12 @@ To validate if user is created in Mongo DB:
 4. Run "db.getUsers()"
 5. Run "db.hostInfo()" to get info
 ```
+# Running dis shit on Kubernetezzz
+```console
+1. Make sure the previous docker image is on docker hub, Make sure your not on Aurizon context for kubezy
+2. Run "kubectl create secret generic server-secrets --from-literal=mongodb-password='<password>'"
+3. Create kubernetes yaml file for MongoDB, then run "kubectl apply -f <filename>.yaml"
+4. Create kubernetes yaml file, then run "kubectl apply -f <filename>.yaml"
+5. To get pods - "kubectl get pods"
+6. To get logs - "kubectl get logs <pod-name>"
+```
