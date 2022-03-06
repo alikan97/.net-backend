@@ -38,3 +38,6 @@ To validate if user is created in Mongo DB:
 5. To get pods - "kubectl get pods"
 6. To get logs - "kubectl get logs <pod-name>"
 ```
+
+
+GET Metrics and run Postman collection runnner to see da shit
