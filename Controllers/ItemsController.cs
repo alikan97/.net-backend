@@ -23,7 +23,7 @@ namespace Server.Controllers
         [HttpGet]
         public async Task<IEnumerable<ItemDto>> GetItemsAsync () 
         {
-            var items = (await repository.GetItemsAsync()).Select( item => item.AsDto());
+            var items = (await repository.GetItemsAsync()).Select(item => item.AsDto());
             return items;
         }
 

@@ -12,3 +12,18 @@
 - Whats **this Item item** in Extensions.cs
 - What are createdAtAction
 - More in-depth understanding of MongoDB + .NET
+
+
+
+# Running dis shit on docker
+1. First run "docker network create <networkName>"
+2. Then run "docker run -d --name <containerName> -p <external-port>:27017 -e MONGO_INITDB_ROOT_USERNAME=<username> -e MONGO_INITDB_ROOT_PASSWORD=<password> --network=<networkName> mongo"
+3. Then run "docker build -t <imagename>:<tag> ."
+4. Run "docker run -it --rm -p <external-port> (the you'll connect to):80 -e MongoDbSettings:Host=<hostName>(mongo) -e MongoDbSettings:Password=<password> --network=<networkName> <imagename>:<tag>
+
+To validate if user is created in Mongo DB:
+1. Run "docker exec --it <containerName> (mongo) /bin/bash"
+2. Run "use admin"
+3. Run "db.auth(<username>,passwordPrompt()) --> <password>"
+4. Run "db.getUsers()"
+5. Run "db.hostInfo()" to get info

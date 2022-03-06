@@ -6,11 +6,12 @@ namespace Server.Settings
         public int Port { get; set; }
         public string User { get; set; }
         public string Password { get; set; }
-        public string ConnectionString 
+        public string ConnectionString
         {
             get
             {
-                return $"mongodb://{User}:{Password}@{Host}:{Port}/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false";
+                //mongodb://Ali:Abcd1234@localhost:27017/?authSource=admin&readPreference=primary&directConnection=true&ssl=false
+                return $"mongodb://{User}:{Password}@{Host}:{Port}";
             }
         }
     }

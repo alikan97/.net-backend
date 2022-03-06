@@ -42,6 +42,11 @@ namespace Server
 
             services.AddSingleton<IMongoClient>(serviceProver =>
             {
+                Console.WriteLine(mongoDBSettings.ConnectionString);
+                Console.WriteLine(mongoDBSettings.Host);
+                Console.WriteLine(mongoDBSettings.Port);
+                Console.WriteLine(mongoDBSettings.Password); 
+                
                 return new MongoClient(mongoDBSettings.ConnectionString);
             });
             services.AddSingleton<IInMenuItemsRepository,MongoDBItemsRepository>();
@@ -67,7 +72,9 @@ namespace Server
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Server v1"));
             }
 
-            app.UseHttpsRedirection();
+            if (env.IsDevelopment()){
+                app.UseHttpsRedirection();
+            }
 
             app.UseRouting();
 
@@ -81,7 +88,7 @@ namespace Server
                     ResponseWriter = async(context,report) => {
                         var result = JsonSerializer.Serialize(
                             new {
-                                status = report.Status.ToString(),
+                                status = report.Status.ToString(),      // The fucks all this shit ??
                                 checks = report.Entries.Select(entry => new {
                                     name = entry.Key,
                                     status = entry.Value.Status.ToString(),
