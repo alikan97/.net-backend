@@ -21,7 +21,6 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using Server.Repositories;
 using Server.Settings;
-
 namespace Server
 {
     public class Startup
@@ -45,6 +44,7 @@ namespace Server
                 return new MongoClient(mongoDBSettings.ConnectionString);
             });
             services.AddSingleton<IInMenuItemsRepository,MongoDBItemsRepository>();
+            services.AddSingleton<IUserRepository, MongoDBUserRepository>();
 
             services.AddControllers(option => {
                 option.SuppressAsyncSuffixInActionNames = false; // Stop ASP from removing 'Async' suffix at runtime

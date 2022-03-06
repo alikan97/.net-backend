@@ -13,5 +13,12 @@ namespace Server
                 CreatedDate = item.CreatedDate,
             };
         }
+        public static UserDto AsDto (this User user)
+        {
+            return new UserDto{
+                Email = user.Email,
+                Password = user.Password,
+            };
+        }
     }
 }
