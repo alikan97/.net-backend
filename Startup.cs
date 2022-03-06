@@ -42,11 +42,6 @@ namespace Server
 
             services.AddSingleton<IMongoClient>(serviceProver =>
             {
-                Console.WriteLine(mongoDBSettings.ConnectionString);
-                Console.WriteLine(mongoDBSettings.Host);
-                Console.WriteLine(mongoDBSettings.Port);
-                Console.WriteLine(mongoDBSettings.Password); 
-                
                 return new MongoClient(mongoDBSettings.ConnectionString);
             });
             services.AddSingleton<IInMenuItemsRepository,MongoDBItemsRepository>();
