@@ -16,6 +16,7 @@
 
 
 # Running dis shit on docker
+```console
 1. First run "docker network create <networkName>"
 2. Then run "docker run -d --name <containerName> -p <external-port>:27017 -e MONGO_INITDB_ROOT_USERNAME=<username> -e MONGO_INITDB_ROOT_PASSWORD=<password> --network=<networkName> mongo"
 3. Then run "docker build -t <imagename>:<tag> ."
@@ -27,3 +28,4 @@ To validate if user is created in Mongo DB:
 3. Run "db.auth(<username>,passwordPrompt()) --> <password>"
 4. Run "db.getUsers()"
 5. Run "db.hostInfo()" to get info
+```
