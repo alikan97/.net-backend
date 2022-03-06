@@ -17,7 +17,6 @@ namespace Server
         {
             return new UserDto{
                 Email = user.Email,
-                Password = user.Password,
             };
         }
     }
