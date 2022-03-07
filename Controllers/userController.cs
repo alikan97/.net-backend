@@ -5,8 +5,7 @@ using Server.Utilities;
 using System;
 using Server.Dtos;
 using System.Threading.Tasks;
-using System.Net;
-
+using System.Security.Claims;
 namespace Server.Controllers
 {
     [ApiController]
@@ -42,16 +41,16 @@ namespace Server.Controllers
         }
         [HttpPost]
         [Route("Login")]
-        public async Task<ActionResult> Login (UserDto user)
+        public async Task<ActionResult<string>> Login (UserDto user)
         {
             var userObj = await repository.GetUserAsync(user);
-
+            string apiToken = userAuth.Authenticate(userObj);
             bool isUserLegit = SecureHasher.Verify(user.Password, userObj.Password);
             if (!isUserLegit)
             {
                 return StatusCode(401, "Login Failed");
             }
-            return StatusCode(200, "User login successful");
+            return Ok(apiToken);
         }
         [HttpPost]
         [Route("Recover")]
