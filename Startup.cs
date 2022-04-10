@@ -1,25 +1,23 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Text.Json;
-using System.Threading.Tasks;
+using AspNetCore.Identity.MongoDbCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
-using Server.Repositories;
+using Server.Config;
+using Server.Models;
 using Server.Settings;
 namespace Server
 {
@@ -37,16 +35,44 @@ namespace Server
         {
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
+
             var mongoDBSettings = Configuration.GetSection(nameof(MongoDBSettings)).Get<MongoDBSettings>();
-
-            services.AddSingleton<IMongoClient>(serviceProver =>
+            services.Configure<JwtConfig> (Configuration.GetSection("JwtConfig"));
+            services.AddSingleton<MongoDBSettings>(mongoDBSettings);
+            
+            services.AddAuthentication(o =>
             {
-                return new MongoClient(mongoDBSettings.ConnectionString);
-            });
-            services.AddSingleton<IInMenuItemsRepository,MongoDBItemsRepository>();
-            services.AddSingleton<IUserRepository, MongoDBUserRepository>();
+                o.DefaultScheme = IdentityConstants.ApplicationScheme;
+                o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            })
+            .AddIdentityCookies(o => { });
+            var key = System.Text.Encoding.ASCII.GetBytes(Configuration["JwtConfig:Secret"]);
+            var tokenValidationParams = new Microsoft.IdentityModel.Tokens.TokenValidationParameters {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    RequireExpirationTime = false,
+                };
+            services.AddSingleton(tokenValidationParams);
 
-            services.AddControllers(option => {
+            services.AddIdentityCore<ApplicationUser>()
+                    .AddRoles<ApplicationRole>()
+                    .AddMongoDbStores<ApplicationUser, ApplicationRole, string>(mongoDBSettings.ConnectionString, mongoDBSettings.Database)
+                    .AddDefaultTokenProviders();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+                options.LoginPath = "/Account/Login";
+                options.SlidingExpiration = true;
+            });
+            services.AddControllers(option =>
+            {
                 option.SuppressAsyncSuffixInActionNames = false; // Stop ASP from removing 'Async' suffix at runtime
             });
             services.AddControllers();
@@ -54,7 +80,7 @@ namespace Server
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Server", Version = "v1" });
             });
-            services.AddHealthChecks().AddMongoDb(mongoDBSettings.ConnectionString, name: "mongodb", timeout: TimeSpan.FromSeconds(3), tags: new[] {"ready"}); // This tag signify's that his service is ready for incoming requests because db is avialbel
+            services.AddHealthChecks().AddMongoDb(mongoDBSettings.ConnectionString, name: "mongodb", timeout: TimeSpan.FromSeconds(3), tags: new[] { "ready" }); // This tag signify's that his service is ready for incoming requests because db is avialbel
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,24 +93,28 @@ namespace Server
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Server v1"));
             }
 
-            if (env.IsDevelopment()){
+            if (env.IsDevelopment())
+            {
                 app.UseHttpsRedirection();
             }
 
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions {
+                endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
+                {
                     Predicate = (check) => check.Tags.Contains("ready"),
-                    ResponseWriter = async(context,report) => {
+                    ResponseWriter = async (context, report) =>
+                    {
                         var result = JsonSerializer.Serialize(
-                            new {
+                            new
+                            {
                                 status = report.Status.ToString(),      // The fucks all this shit ??
-                                checks = report.Entries.Select(entry => new {
+                                checks = report.Entries.Select(entry => new
+                                {
                                     name = entry.Key,
                                     status = entry.Value.Status.ToString(),
                                     exception = entry.Value.Exception != null ? entry.Value.Exception.Message : "None",
@@ -96,7 +126,8 @@ namespace Server
                         await context.Response.WriteAsync(result);
                     }
                 });
-                endpoints.MapHealthChecks("/health/live", new HealthCheckOptions{
+                endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
+                {
                     Predicate = (_) => false
                 });
             });

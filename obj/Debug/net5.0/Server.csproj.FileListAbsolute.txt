@@ -116,3 +116,9 @@ C:\Users\alikh\Documents\Personal Projects\C# - .NET\.net-backend\bin\Debug\net5
 C:\Users\alikh\Documents\Personal Projects\C# - .NET\.net-backend\bin\Debug\net5.0\Microsoft.IdentityModel.Logging.dll
 C:\Users\alikh\Documents\Personal Projects\C# - .NET\.net-backend\bin\Debug\net5.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\alikh\Documents\Personal Projects\C# - .NET\.net-backend\bin\Debug\net5.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\alikh\Documents\Personal Projects\C# - .NET\.net-backend\bin\Debug\net5.0\AspNetCore.Identity.Mongo.dll
+C:\Users\alikh\Documents\Personal Projects\C# - .NET\.net-backend\bin\Debug\net5.0\MongoDbGenericRepository.dll
+C:\Users\alikh\Documents\Personal Projects\C# - .NET\.net-backend\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\alikh\Documents\Personal Projects\C# - .NET\.net-backend\bin\Debug\net5.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\alikh\Documents\Personal Projects\C# - .NET\.net-backend\bin\Debug\net5.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\alikh\Documents\Personal Projects\C# - .NET\.net-backend\bin\Debug\net5.0\AspNetCore.Identity.MongoDbCore.dll
