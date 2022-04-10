@@ -5,36 +5,51 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
 using Server.Config;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System;
+using Server.Entities;
 
 namespace Server.Controllers
 {
     public class UserService
     {
-        private readonly IMongoCollection<UserDto> users;
+        private readonly IMongoCollection<UserCollection> users;
         private readonly JwtConfig jwtSettings;
 
         public UserService(IConfiguration config)
         {
             var client = new MongoClient(config.GetConnectionString("mongoDb"));
             var database = client.GetDatabase("server");
-            users = database.GetCollection<UserDto>("users");
+            users = database.GetCollection<UserCollection>("users");
             jwtSettings = config.GetSection(nameof(JwtConfig)).Get<JwtConfig>();
         }
 
-        public async Task<List<UserDto>> GetUsers() => await users.Find(user => true).ToListAsync();
+        public async Task<List<UserCollection>> GetUsers() => await users.Find(user => true).ToListAsync();
 
-        public async Task<UserDto> GetUser(string id) => await users.Find<UserDto>(user => user.Id == id).FirstOrDefaultAsync();
+        public async Task<UserCollection> GetUser(Guid id) => await users.Find<UserCollection>(user => user.Id == id).FirstOrDefaultAsync();
 
-        public async Task<UserDto> Create(UserDto user)
+        public async Task<UserCollection> Create(userRegistrationDto user)
         {
-            await users.InsertOneAsync(user);
-            return user;
+            var id = new Guid();
+            var roles = new List<string>();
+            foreach (var role in user.Roles)
+            {
+                roles.Add(role);
+            }
+
+            var newUser = new UserCollection
+            {
+                Id = id,
+                Email = user.Email,
+                Password = user.Password,
+                Roles = roles
+            };
+
+            await users.InsertOneAsync(newUser);
+            return newUser;
         }
 
-        public async Task<Object> Authenticate(UserDto tempUser)
+        public async Task<Object> Authenticate(UserLoginDto tempUser)
         {
             var user = await this.users.Find(x => x.Email == tempUser.Email && x.Password == tempUser.Password).FirstOrDefaultAsync();
             if (user == null) return null;
@@ -43,9 +58,12 @@ namespace Server.Controllers
             claims.Add(new Claim(ClaimTypes.Email, tempUser.Email));
 
             // Add roles as multiple claims
-            foreach (var role in tempUser.Roles)
+            if (user.Roles != null)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));
+                foreach (var role in user.Roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
             }
 
             var token = JwtHelper.GetJwtToken(
@@ -61,31 +79,6 @@ namespace Server.Controllers
                 token = new JwtSecurityTokenHandler().WriteToken(token),
                 expires = token.ValidTo
             };
-
-            // var tokenHandler = new JwtSecurityTokenHandler();
-            // var tokenKey = System.Text.Encoding.ASCII.GetBytes(jwtSettings.Secret.ToString());
-
-            // var claims = new List<Claim>();
-            // claims.Add(new Claim(ClaimTypes.Email, tempUser.Email));
-
-            // foreach (var role in tempUser.Roles)
-            // {
-            //     claims.Add(new Claim(ClaimTypes.Role, role));
-            // }
-
-            // var tokenDescriptor = new SecurityTokenDescriptor() {
-            //     Subject = new ClaimsIdentity(claims),
-            //     Expires = DateTime.UtcNow.AddHours(1),
-            //     SigningCredentials = new SigningCredentials (
-            //         new SymmetricSecurityKey(tokenKey),
-            //         SecurityAlgorithms.HmacSha256Signature
-            //     ),
-            //     Issuer = jwtSettings.Issuer.ToString(),
-            //     Audience = jwtSettings.Audience.ToString()
-            // };
-
-            // var token = tokenHandler.CreateToken(tokenDescriptor);
-            // return tokenHandler.WriteToken(token);
         }
     }
 }

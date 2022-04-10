@@ -1,23 +1,9 @@
 using System;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
-using Server.Models;
 using Server.Dtos;
-using Server.Controllers;
 using Microsoft.AspNetCore.Mvc;
-using Server.Config;
-using Microsoft.IdentityModel.Tokens;
-using Server.Repositories;
-using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using AspNetCore.Identity.Mongo;
-using App.Models;
-using System.Linq;
 
 namespace Server.Controllers
 {
@@ -33,36 +19,55 @@ namespace Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<UserDto>>> GetUsers()
+        public async Task<ActionResult<List<filteredUser>>> GetUsers()
         {
             var users = await _userService.GetUsers();
-            return users;
+            var filtered = new List<filteredUser> {};
+            
+            users.ForEach(x => {
+                filtered.Add(
+                    new filteredUser {
+                        Email = x.Email,
+                        Id = x.Id,
+                        Roles = x.Roles
+                    }
+                );
+            });
+
+            return filtered;
         }
 
         [HttpGet("{id:length(24)}")]
-        public async Task<ActionResult<UserDto>> GetUser(string id)
+        public async Task<ActionResult<filteredUser>> GetUser(Guid id)
         {
             var user = await _userService.GetUser(id);
-            return user;
+            return new filteredUser {
+                Email = user.Email,
+                Id = user.Id,
+                Roles = user.Roles
+            };
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserDto>> Create (UserDto user)
+        public async Task<ActionResult<Guid>> Create ([FromBody] userRegistrationDto user)
         {
             var newUser = await _userService.Create(user);
-            return Ok();
+            if (newUser == null) return BadRequest(new {error = "Error occurred during creation"});
+            return Ok(newUser.Id);
         }
 
         [HttpPost]
         [Route("login")]
         [AllowAnonymous]
-        public async Task<ActionResult> Login ([FromBody] UserDto user)
+        public async Task<ActionResult> Login ([FromBody] UserLoginDto user)
         {
+            if (!ModelState.IsValid) return BadRequest("Check your input");
             var token = await _userService.Authenticate(user);
 
             if (token == null) return Unauthorized();
 
-            return Ok(new {token, user});
+            var filteredUser = new filteredUser { Email = user.Email };
+            return Ok(new {token, filteredUser});
         }
     }
 }
