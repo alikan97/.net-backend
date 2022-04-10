@@ -64,7 +64,6 @@ namespace Server
                 x.TokenValidationParameters = tokenValidationParams;
             });
 
-
             services.AddControllers(option =>
             {
                 option.SuppressAsyncSuffixInActionNames = false; // Stop ASP from removing 'Async' suffix at runtime
