@@ -1,6 +1,6 @@
 namespace Server.Settings
 {
-    public class MongoDBSettings
+    public class MongoDBSettings : IMongoDBSettings
     {
         public string Host { get; set; }
         public int Port { get; set; }

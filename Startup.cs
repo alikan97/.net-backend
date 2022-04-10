@@ -2,22 +2,22 @@ using System;
 using System.Linq;
 using System.Net.Mime;
 using System.Text.Json;
-using AspNetCore.Identity.MongoDbCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Server.Config;
-using Server.Models;
+using Server.Controllers;
 using Server.Settings;
 namespace Server
 {
@@ -37,40 +37,34 @@ namespace Server
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
 
             var mongoDBSettings = Configuration.GetSection(nameof(MongoDBSettings)).Get<MongoDBSettings>();
-            services.Configure<JwtConfig> (Configuration.GetSection("JwtConfig"));
-            services.AddSingleton<MongoDBSettings>(mongoDBSettings);
-            
-            services.AddAuthentication(o =>
+            var JwtConfigSettings = Configuration.GetSection(nameof(JwtConfig)).Get<JwtConfig>();
+            services.AddSingleton<IMongoDBSettings>(db => db.GetRequiredService<IOptions<MongoDBSettings>>().Value);
+            services.AddScoped<UserService>();
+
+            var key = System.Text.Encoding.ASCII.GetBytes(JwtConfigSettings.Secret.ToString());
+            var tokenValidationParams = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
             {
-                o.DefaultScheme = IdentityConstants.ApplicationScheme;
-                o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            })
-            .AddIdentityCookies(o => { });
-            var key = System.Text.Encoding.ASCII.GetBytes(Configuration["JwtConfig:Secret"]);
-            var tokenValidationParams = new Microsoft.IdentityModel.Tokens.TokenValidationParameters {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    RequireExpirationTime = false,
-                };
-            services.AddSingleton(tokenValidationParams);
-
-            services.AddIdentityCore<ApplicationUser>()
-                    .AddRoles<ApplicationRole>()
-                    .AddMongoDbStores<ApplicationUser, ApplicationRole, string>(mongoDBSettings.ConnectionString, mongoDBSettings.Database)
-                    .AddDefaultTokenProviders();
-
-            services.ConfigureApplicationCookie(options =>
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,
+                ValidIssuer = JwtConfigSettings.Issuer,
+                ValidateAudience = true,
+                ValidAudience = JwtConfigSettings.Audience,
+                ValidateLifetime = true,
+            };
+            services.AddAuthentication(x =>
             {
-                // Cookie settings
-                options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-
-                options.LoginPath = "/Account/Login";
-                options.SlidingExpiration = true;
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = tokenValidationParams;
             });
+
+
             services.AddControllers(option =>
             {
                 option.SuppressAsyncSuffixInActionNames = false; // Stop ASP from removing 'Async' suffix at runtime
@@ -97,8 +91,9 @@ namespace Server
             {
                 app.UseHttpsRedirection();
             }
-
             app.UseRouting();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
