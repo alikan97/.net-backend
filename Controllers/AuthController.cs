@@ -37,10 +37,10 @@ namespace Server.Controllers
             return filtered;
         }
 
-        [HttpGet("{id:length(24)}")]
-        public async Task<ActionResult<filteredUser>> GetUser(Guid id)
+        [HttpGet("{email}")]
+        public async Task<ActionResult<filteredUser>> GetUser(string email)
         {
-            var user = await _userService.GetUser(id);
+            var user = await _userService.GetUser(email);
             return new filteredUser {
                 Email = user.Email,
                 Id = user.Id,
@@ -48,12 +48,19 @@ namespace Server.Controllers
             };
         }
 
+        [AllowAnonymous]
         [HttpPost]
+        [Route("register")]
         public async Task<ActionResult<Guid>> Create ([FromBody] userRegistrationDto user)
         {
+            if (!ModelState.IsValid) return BadRequest("Bad Request");
+            
+            var existingUser = await _userService.GetUser(user.Email);
+            if (existingUser != null) return BadRequest("User already exists");
+
             var newUser = await _userService.Create(user);
             if (newUser == null) return BadRequest(new {error = "Error occurred during creation"});
-            return Ok(newUser.Id);
+            return Ok(new {newUser.Roles, newUser.Id});
         }
 
         [HttpPost]
@@ -66,7 +73,7 @@ namespace Server.Controllers
 
             if (token == null) return Unauthorized();
 
-            var filteredUser = new filteredUser { Email = user.Email };
+            var filteredUser = new filteredUser { Email = user.Email, Info = "Don't pay attention to role or id, everythings all g"};
             return Ok(new {token, filteredUser});
         }
     }

@@ -26,12 +26,13 @@ namespace Server.Controllers
 
         public async Task<List<UserCollection>> GetUsers() => await users.Find(user => true).ToListAsync();
 
-        public async Task<UserCollection> GetUser(Guid id) => await users.Find<UserCollection>(user => user.Id == id).FirstOrDefaultAsync();
+        public async Task<UserCollection> GetUser(string email) => await users.Find<UserCollection>(user => user.Email == email).FirstOrDefaultAsync();
 
         public async Task<UserCollection> Create(userRegistrationDto user)
         {
             var id = new Guid();
             var roles = new List<string>();
+
             foreach (var role in user.Roles)
             {
                 roles.Add(role);
