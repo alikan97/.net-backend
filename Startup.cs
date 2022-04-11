@@ -16,8 +16,10 @@ using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver;
 using Server.Config;
 using Server.Controllers;
+using Server.Repositories;
 using Server.Settings;
 namespace Server
 {
@@ -38,8 +40,11 @@ namespace Server
 
             var mongoDBSettings = Configuration.GetSection(nameof(MongoDBSettings)).Get<MongoDBSettings>();
             var JwtConfigSettings = Configuration.GetSection(nameof(JwtConfig)).Get<JwtConfig>();
+
             services.AddSingleton<IMongoDBSettings>(db => db.GetRequiredService<IOptions<MongoDBSettings>>().Value);
             services.AddScoped<UserService>();
+            services.AddScoped<IInMenuItemsRepository,MongoDBItemsRepository>();
+            services.AddScoped<HouseRepository>();
 
             var key = System.Text.Encoding.ASCII.GetBytes(JwtConfigSettings.Secret.ToString());
             var tokenValidationParams = new Microsoft.IdentityModel.Tokens.TokenValidationParameters

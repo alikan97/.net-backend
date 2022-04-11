@@ -6,11 +6,13 @@ using System;
 using System.Linq;
 using Server.Dtos;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Server.Controllers
 {
     [ApiController]
     [Route("items")]
+    [Authorize]
     public class ItemsController : ControllerBase
     {
         private readonly IInMenuItemsRepository repository;

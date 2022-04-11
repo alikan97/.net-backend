@@ -2,11 +2,9 @@ using System.Collections.Generic;
 
 namespace Server.Dtos
 {
-    public class AuthResult
+    public class LoginResponse : GenericResponse 
     {
-        public string Token { get; set; }
+        public object Token { get; set; }
         public bool Success { get; set; }
-        public List<string> Errors { get; set; }
-        public string refreshToken { get; set; }
     }
 }

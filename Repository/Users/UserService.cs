@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System;
 using Server.Entities;
 
-namespace Server.Controllers
+namespace Server.Repositories
 {
     public class UserService
     {
@@ -78,7 +78,7 @@ namespace Server.Controllers
             return new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
-                expires = token.ValidTo
+                expires = token.ValidTo.ToLocalTime()
             };
         }
     }

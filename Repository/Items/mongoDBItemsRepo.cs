@@ -4,6 +4,7 @@ using Server.Entities;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace Server.Repositories
 {
@@ -15,10 +16,11 @@ namespace Server.Repositories
         private readonly IMongoCollection<Item> itemsCollection;
         private readonly FilterDefinitionBuilder<Item> filterBuilder = Builders<Item>.Filter;
 
-        public MongoDBItemsRepository(IMongoClient mongoClient) 
+        public MongoDBItemsRepository(IConfiguration config) 
         {
-            IMongoDatabase db = mongoClient.GetDatabase(dbName);
-            itemsCollection = db.GetCollection<Item>(collectionName);
+            var client = new MongoClient(config.GetConnectionString("mongoDb"));
+            var database = client.GetDatabase(dbName);
+            itemsCollection = database.GetCollection<Item>(collectionName);
         }
         public async Task createItemAsync(Item item)
         {

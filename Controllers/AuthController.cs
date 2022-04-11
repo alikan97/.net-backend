@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Server.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using Server.Repositories;
 
 namespace Server.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [Route("api/auth")]
     [ApiController]
     public class AuthMgmtController : ControllerBase
@@ -18,6 +19,7 @@ namespace Server.Controllers
             _userService = service;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<List<filteredUser>>> GetUsers()
         {
@@ -37,6 +39,7 @@ namespace Server.Controllers
             return filtered;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{email}")]
         public async Task<ActionResult<filteredUser>> GetUser(string email)
         {
@@ -74,7 +77,13 @@ namespace Server.Controllers
             if (token == null) return Unauthorized();
 
             var filteredUser = new filteredUser { Email = user.Email, Info = "Don't pay attention to role or id, everythings all g"};
-            return Ok(new {token, filteredUser});
+            return Ok(new LoginResponse 
+            {
+                statusCode = 200,
+                ErrorContent = null,
+                Token = token,
+                Success = true,
+            });
         }
     }
 }
