@@ -34,7 +34,7 @@ namespace Server.Utilities
             var count = Interlocked.Increment(ref executionCount);
 
             TcpConnector newConnector = new TcpConnector();
-            List<string> messages = newConnector.tryRead("localhost", "message");
+            List<string> messages = newConnector.tryRead("localhost", "Read");
 
             Console.WriteLine(messages.ToString());
 

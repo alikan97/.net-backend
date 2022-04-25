@@ -19,14 +19,15 @@ namespace Server.Utilities
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
 
                 // Get a client stream for reading and writing.
-                //  Stream stream = client.GetStream();
                 NetworkStream stream = client.GetStream();
 
+                stream.Write(data,0,data.Length);
                 // Buffer to store the response bytes.
                 data = new Byte[256];
 
                 // String to store the response ASCII representation.
                 List<string> messages = new List<string>();
+
 
                 while(client.Connected)
                 {
