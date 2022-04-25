@@ -81,5 +81,11 @@ namespace Server.Repositories
                 expires = token.ValidTo.ToLocalTime()
             };
         }
+
+        public async Task AddRoleToUser (UserCollection existingUser, string Role)
+        {
+            existingUser.Roles.Add(Role);
+            await Task.CompletedTask;
+        }
     }
 }

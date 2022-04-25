@@ -21,6 +21,8 @@ using Server.Config;
 using Server.Controllers;
 using Server.Repositories;
 using Server.Settings;
+using Server.Utilities;
+
 namespace Server
 {
     public class Startup
@@ -45,6 +47,8 @@ namespace Server
             services.AddScoped<UserService>();
             services.AddScoped<IInMenuItemsRepository,MongoDBItemsRepository>();
             services.AddScoped<HouseRepository>();
+            
+            services.AddHostedService<TimedHostedService>();
 
             var key = System.Text.Encoding.ASCII.GetBytes(JwtConfigSettings.Secret.ToString());
             var tokenValidationParams = new Microsoft.IdentityModel.Tokens.TokenValidationParameters

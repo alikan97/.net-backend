@@ -5,6 +5,7 @@ using Server.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Server.Repositories;
+using Server.Entities;
 
 namespace Server.Controllers
 {
@@ -84,6 +85,18 @@ namespace Server.Controllers
                 Token = token,
                 Success = true,
             });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut]
+        [Route("add-role-to-user")]
+        public async Task<ActionResult> addRoleToUser ([FromBody] addRoleToUser role)
+        {
+            if (!ModelState.IsValid) return BadRequest(new GenericResponse{ ErrorContent = "Bad Request", statusCode = 404});
+
+            var user = await _userService.GetUser(role.Email);
+            await _userService.AddRoleToUser(user, role.Role);
+            return Ok($"{role.Role} role was added to User {role.Email}");
         }
     }
 }

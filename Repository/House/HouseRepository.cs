@@ -12,9 +12,7 @@ namespace Server.Repositories
     {
         private const string dbName= "server";
         private const string collectionName = "house";
-
         private readonly IMongoCollection<House> houseCollection;
-        private readonly FilterDefinitionBuilder<Item> filterBuilder = Builders<Item>.Filter;
 
         public HouseRepository(IConfiguration config) 
         {
@@ -23,9 +21,15 @@ namespace Server.Repositories
             houseCollection = database.GetCollection<House>(collectionName);
         }
 
-        public async Task addOccupant(House house)
+        public async Task addOccupant(string address, string[] occupant)
         {
-            await houseCollection.InsertOneAsync(house);
+            var house = await houseCollection.FindAsync(x => x.Name == address);
+
+            foreach(var occ in occupant)
+            {
+                house.FirstOrDefault().Occupants.Add(occ);
+            }
+            await Task.CompletedTask;
         }
 
         public Task createAlarmTrigger(string alarmName)

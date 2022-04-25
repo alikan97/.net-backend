@@ -1,10 +1,10 @@
 namespace Server.Entities
 {
-    public enum Roles
+    public enum serverRoles
     {
-        Admin,
-        Customer,
-        Business,
-        Dev
+        Admin = 1,
+        Customer = 2,
+        Business = 3,
+        Dev = 4
     }
 }

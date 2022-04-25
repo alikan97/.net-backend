@@ -7,6 +7,7 @@ using System.Linq;
 using Server.Dtos;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Server.Utilities;
 
 namespace Server.Controllers
 {
@@ -16,9 +17,11 @@ namespace Server.Controllers
     public class ItemsController : ControllerBase
     {
         private readonly IInMenuItemsRepository repository;
+        private TcpConnector connector;
 
-        public ItemsController(IInMenuItemsRepository repo)
+        public ItemsController(IInMenuItemsRepository repo, TcpConnector conn)
         {
+            this.connector = conn;
             this.repository = repo;
         }
         // GET Items/

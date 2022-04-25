@@ -23,10 +23,10 @@ namespace Server.Controllers
         [Route("new")]
         public async Task<ActionResult> CreateHouse([FromBody] createHouseDto house)
         {
-            var Occupantsss = new List<string> {};
+            var Occupants = new List<string> {};
             foreach(var elem in house.Occupants)
             {
-                Occupantsss.Add(elem);
+                Occupants.Add(elem);
             }
 
             var newhouse = new House {
@@ -34,7 +34,7 @@ namespace Server.Controllers
                 Humidity = house.Humidity,
                 alarmTriggers = null,
                 weatherDescription = null,
-                Occupants = Occupantsss,
+                Occupants = Occupants,
                 Name = house.Name,
                 Id = new Guid()
             };

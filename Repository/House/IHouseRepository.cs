@@ -14,6 +14,6 @@ namespace Server.Repositories
         Task updateAlarm(Dictionary<string,string> alarmState);
         Task deleteAlarm(string alarmName);
         Task updateWeatherDescription(string newDescription);
-        Task addOccupant(House house);
+        Task addOccupant(string address, string[] occupant);
     }
 }
