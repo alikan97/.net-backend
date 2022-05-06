@@ -15,7 +15,15 @@ namespace Server.Utilities
     {
         public override bool IsValid(object value)
         {
-            return Enum.IsDefined(typeof(serverRoles), value);
+            string[] arr = value as string[];
+
+            foreach(string i in arr) {
+                if (!Enum.IsDefined(typeof(serverRoles), i))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

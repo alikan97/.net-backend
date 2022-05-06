@@ -48,7 +48,7 @@ namespace Server
             services.AddScoped<IInMenuItemsRepository,MongoDBItemsRepository>();
             services.AddScoped<HouseRepository>();
             
-            services.AddHostedService<TimedHostedService>();
+            // services.AddHostedService<TimedHostedService>();
 
             var key = System.Text.Encoding.ASCII.GetBytes(JwtConfigSettings.Secret.ToString());
             var tokenValidationParams = new Microsoft.IdentityModel.Tokens.TokenValidationParameters

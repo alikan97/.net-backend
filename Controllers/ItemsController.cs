@@ -17,11 +17,9 @@ namespace Server.Controllers
     public class ItemsController : ControllerBase
     {
         private readonly IInMenuItemsRepository repository;
-        private TcpConnector connector;
 
-        public ItemsController(IInMenuItemsRepository repo, TcpConnector conn)
+        public ItemsController(IInMenuItemsRepository repo)
         {
-            this.connector = conn;
             this.repository = repo;
         }
         // GET Items/
