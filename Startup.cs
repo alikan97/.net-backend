@@ -73,6 +73,15 @@ namespace Server
                 x.TokenValidationParameters = tokenValidationParams;
             });
 
+            services.AddCors(options => {
+                options.AddPolicy(name: "MyAllowPolicy",
+                                    policy => {
+                                        policy.AllowAnyOrigin();
+                                        policy.AllowAnyMethod();
+                                        policy.AllowAnyHeader();
+                                    });
+            });
+
             services.AddControllers(option =>
             {
                 option.SuppressAsyncSuffixInActionNames = false; // Stop ASP from removing 'Async' suffix at runtime
@@ -100,7 +109,7 @@ namespace Server
                 app.UseHttpsRedirection();
             }
             app.UseRouting();
-
+            app.UseCors("MyAllowPolicy");
             app.UseAuthentication();
             app.UseAuthorization();
 
