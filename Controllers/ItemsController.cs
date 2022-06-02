@@ -13,7 +13,7 @@ namespace Server.Controllers
 {
     [ApiController]
     [Route("items")]
-    [Authorize]
+    // [Authorize]
     public class ItemsController : ControllerBase
     {
         private readonly IInMenuItemsRepository repository;
@@ -24,10 +24,16 @@ namespace Server.Controllers
         }
         // GET Items/
         [HttpGet]
-        public async Task<IEnumerable<ItemDto>> GetItemsAsync () 
+        public async Task<paginatedResponse<IEnumerable<ItemDto>>> GetItemsAsync ([FromQuery] int skip, [FromQuery] int take) 
         {
             var items = (await repository.GetItemsAsync()).Select(item => item.AsDto());
-            return items;
+            var paginatedItems = items.Skip(skip).Take(take);
+            var response = new paginatedResponse<IEnumerable<ItemDto>> {
+                itemsCount = items.Count(),
+                data = paginatedItems,
+            };
+
+            return response;
         }
 
         // GET Items/id
