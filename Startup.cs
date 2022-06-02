@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Mime;
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -61,6 +64,8 @@ namespace Server
                 ValidAudience = JwtConfigSettings.Audience,
                 ValidateLifetime = true,
             };
+            services.AddSingleton(tokenValidationParams);
+            
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -108,6 +113,7 @@ namespace Server
             {
                 app.UseHttpsRedirection();
             }
+            
             app.UseRouting();
             app.UseCors("MyAllowPolicy");
             app.UseAuthentication();

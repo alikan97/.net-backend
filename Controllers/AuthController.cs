@@ -5,7 +5,6 @@ using Server.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Server.Repositories;
-using Server.Entities;
 
 namespace Server.Controllers
 {
@@ -77,14 +76,28 @@ namespace Server.Controllers
 
             if (token == null) return Unauthorized();
 
-            var filteredUser = new filteredUser { Email = user.Email, Info = "Don't pay attention to role or id, everythings all g"};
-            return Ok(new LoginResponse 
+            return Ok(new AuthResponse 
             {
                 statusCode = 200,
                 ErrorContent = null,
                 Token = token,
                 Success = true,
             });
+        }
+
+        [HttpPost]
+        [Route("refresh")]
+        public async Task<IActionResult> RefreshToken ([FromBody] TokenRequest tokenRequest)
+        {
+            if (!ModelState.IsValid) {
+                return BadRequest(new { Error = "Bad Request"});
+            }
+
+            var result = await _userService.VerifyToken(tokenRequest);
+
+            if (!result.Success || result == null) return BadRequest(result);
+
+            return Ok(result);
         }
 
         [Authorize(Roles = "Admin")]
@@ -97,6 +110,17 @@ namespace Server.Controllers
             var user = await _userService.GetUser(role.Email);
             await _userService.AddRoleToUser(user, role.Role);
             return Ok($"{role.Role} role was added to User {role.Email}");
+        }
+
+        // Random endpoint to test things
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("test")]
+        public async Task<ActionResult> test ()
+        {
+            await _userService.Test();
+            
+            return Ok();
         }
     }
 }

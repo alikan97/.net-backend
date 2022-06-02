@@ -1,43 +1,87 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using Server.Dtos;
+using Server.Entities;
 
 public class JwtHelper
 {
-    public static JwtSecurityToken GetJwtToken(
-        string email,
+    public static generatedJwtToken GetJwtToken(
+        UserCollection subjectUser,
         string issuer,
         string audience,
-        TimeSpan expiration,
-        string uniqueKey,
-        Claim[] additionalClaims = null)
+        string uniqueKey
+    )
     {
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Email,email),
-            // this guarantees the token is unique
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenExpiry = DateTime.UtcNow.AddMinutes(30);
+        var refreshExpiry = DateTime.UtcNow.AddMonths(1);
 
-        if (additionalClaims is object)
+        var additionalClaims = new List<Claim>();
+        // Add roles as multiple claims
+        if (subjectUser.Roles != null)
         {
-            var claimList = new List<Claim>(claims);
-            claimList.AddRange(additionalClaims);
-            claims = claimList.ToArray();
+            foreach (var role in subjectUser.Roles)
+            {
+                additionalClaims.Add(new Claim(ClaimTypes.Role, role));
+            }
         }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(uniqueKey));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, subjectUser.Email),
+            new Claim(JwtRegisteredClaimNames.Name, subjectUser.FullName),
+            new Claim(JwtRegisteredClaimNames.Sub, subjectUser.Id.ToString())
+        };
 
-        return new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            expires: DateTime.UtcNow.Add(expiration),
-            claims: claims,
-            signingCredentials: creds
-        );
+        foreach (Claim claim in additionalClaims)
+        {
+            claims.Add(claim);
+        }
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Issuer = issuer,
+            Audience = audience,
+            IssuedAt = DateTime.UtcNow,
+            NotBefore = DateTime.UtcNow.AddSeconds(5),
+            Expires = tokenExpiry,
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(uniqueKey)),
+                        SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+        var jwtToken = tokenHandler.WriteToken(token);
+
+        var refreshToken = new refreshToken()
+        {
+            jwtAccessId = token.Id,
+            isUsed = false,
+            isRevoked = false,
+            userId = subjectUser.Id,
+            AddedDate = DateTime.UtcNow,
+            Expiry = refreshExpiry,
+            token = Randomstring(35) + Guid.NewGuid(),
+        };
+
+        return new generatedJwtToken
+        {
+            AccessToken = jwtToken,
+            RefreshToken = refreshToken,
+            expires = refreshExpiry
+        };
+    }
+
+    private static string Randomstring(int length)
+    {
+        var random = new Random();
+        var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return new string(Enumerable.Repeat(chars, length).Select(x => x[random.Next(x.Length)]).ToArray());
     }
 }
