@@ -8,5 +8,7 @@ namespace Server.Dtos
         [Required]
         [Range(0,5000)]
         public decimal Price { get; init; }
+        [Required]
+        public string Category { get; set; }
     }
 }

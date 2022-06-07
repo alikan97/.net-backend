@@ -38,12 +38,10 @@ public class JwtHelper
             new Claim(JwtRegisteredClaimNames.Name, subjectUser.FullName),
             new Claim(JwtRegisteredClaimNames.Sub, subjectUser.Id.ToString())
         };
-
         foreach (Claim claim in additionalClaims)
         {
             claims.Add(claim);
         }
-
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),

@@ -90,6 +90,16 @@ namespace Server.Repositories
                 var tokenVerification = tokenHandler.ValidateToken(tokenRequest.AccessToken, _tokenValidationParameters, out var tokeValidated);
 
                 var user = await users.Find(x => x.RefreshToken.token == tokenRequest.RefreshToken).FirstOrDefaultAsync(); // This thing fucks up on second use of refresh token
+
+                if (user == null) {
+                    return new AuthResponse() {
+                        Token = null,
+                        ErrorContent = "Cannot match refresh tokens, refresh token is already used",
+                        Success = false,
+                        statusCode = 401,
+                    };
+                }
+                
                 var storedToken = user.RefreshToken;
 
                 if (storedToken == null)

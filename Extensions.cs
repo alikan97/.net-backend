@@ -10,6 +10,7 @@ namespace Server
                 Id = item.Id,
                 Name = item.Name,
                 Price = item.Price,
+                Category = item.Category,
                 CreatedDate = item.CreatedDate,
             };
         }

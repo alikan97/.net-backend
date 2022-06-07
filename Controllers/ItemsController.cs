@@ -13,7 +13,7 @@ namespace Server.Controllers
 {
     [ApiController]
     [Route("items")]
-    // [Authorize]
+    [Authorize]
     public class ItemsController : ControllerBase
     {
         private readonly IInMenuItemsRepository repository;
@@ -24,9 +24,9 @@ namespace Server.Controllers
         }
         // GET Items/
         [HttpGet]
-        public async Task<paginatedResponse<IEnumerable<ItemDto>>> GetItemsAsync ([FromQuery] int skip, [FromQuery] int take) 
+        public async Task<paginatedResponse<IEnumerable<ItemDto>>> GetItemsAsync ([FromQuery] int skip, [FromQuery] int take, [FromBody] GetItemsFilters filters = null, [FromQuery] string keyword = "") 
         {
-            var items = (await repository.GetItemsAsync()).Select(item => item.AsDto());
+            var items = (await repository.GetItemsAsync(filters, keyword)).Select(item => item.AsDto());
             var paginatedItems = items.Skip(skip).Take(take);
             var response = new paginatedResponse<IEnumerable<ItemDto>> {
                 itemsCount = items.Count(),
@@ -52,6 +52,7 @@ namespace Server.Controllers
             Item item = new() {
                 Id = Guid.NewGuid(),
                 Name = itemDto.Name,
+                Category = itemDto.Category,
                 Price = itemDto.Price,
                 CreatedDate = DateTimeOffset.UtcNow,
             };
