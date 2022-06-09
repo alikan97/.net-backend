@@ -24,9 +24,9 @@ namespace Server.Controllers
         }
         // GET Items/
         [HttpGet]
-        public async Task<paginatedResponse<IEnumerable<ItemDto>>> GetItemsAsync ([FromQuery] int skip, [FromQuery] int take, [FromBody] GetItemsFilters filters = null, [FromQuery] string keyword = "") 
+        public async Task<paginatedResponse<IEnumerable<ItemDto>>> GetItemsAsync ([FromQuery] int skip, [FromQuery] int take, [FromQuery] int price, [FromQuery] IEnumerable<string> categories, [FromQuery] string keyword) 
         {
-            var items = (await repository.GetItemsAsync(filters, keyword)).Select(item => item.AsDto());
+            var items = (await repository.GetItemsAsync(price, categories, keyword)).Select(item => item.AsDto());
             var paginatedItems = items.Skip(skip).Take(take);
             var response = new paginatedResponse<IEnumerable<ItemDto>> {
                 itemsCount = items.Count(),

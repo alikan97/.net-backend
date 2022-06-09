@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Server.Dtos;
 using System.Linq;
 using MongoDB.Bson.Serialization.Serializers;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Server.Repositories
 {
@@ -42,17 +43,30 @@ namespace Server.Repositories
             return await itemsCollection.Find(filter).SingleOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<Item>> GetItemsAsync(GetItemsFilters filters, string keyword)
+        public async Task<IEnumerable<Item>> GetItemsAsync(int price, IEnumerable<string> categories, string keyword)
         {
             try {
+                string[] stringCast = categories.Select(x => x).ToArray();
+                FilterDefinition<Item> combinedFilters = filterBuilder.Empty;
                 // var it = await itemsCollection.Find(x => x.Price < filters.price).ToListAsync(); Using LINQ
-                var stringFilter = filterBuilder.Regex("Name", new BsonRegularExpression(keyword));
-                var categoryFilter = filterBuilder.In(x => x.Category, filters.Categories);
-                var priceFilter = filterBuilder.Lte(x => x.Price, Convert.ToDecimal(filters.price));
 
-                var combinedFilter = filterBuilder.And(stringFilter, categoryFilter, priceFilter);
+                if (String.IsNullOrEmpty(keyword) && categories.IsNullOrEmpty() && price <= 0) {
+                    return await itemsCollection.Find(new BsonDocument()).ToListAsync();
+                }
 
-                return await itemsCollection.Find(combinedFilter).ToListAsync();
+                if (!String.IsNullOrEmpty(keyword)) {
+                    combinedFilters &= filterBuilder.Regex("Name", new BsonRegularExpression(keyword));
+                }
+
+                if (!categories.IsNullOrEmpty()) {
+                    combinedFilters &= filterBuilder.In(x => x.Category, stringCast);
+                }
+
+                if (price > 0) {
+                    combinedFilters &= filterBuilder.Lte(x => x.Price, Convert.ToDecimal(price));
+                }
+
+                return await itemsCollection.Find(combinedFilters).ToListAsync();
             } catch (Exception ex) {
                 Console.WriteLine(ex.Message);
                 return null;
