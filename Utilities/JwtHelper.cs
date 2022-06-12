@@ -56,11 +56,11 @@ public class JwtHelper
 
         var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
         var jwtToken = tokenHandler.WriteToken(token);
-
+        
         var refreshToken = new refreshToken()
         {
             jwtAccessId = token.Id,
-            isUsed = false,
+            usageCount = 0,
             isRevoked = false,
             userId = subjectUser.Id,
             AddedDate = DateTime.UtcNow,

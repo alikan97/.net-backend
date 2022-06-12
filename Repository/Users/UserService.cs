@@ -109,18 +109,18 @@ namespace Server.Repositories
                         Token = null,
                         ErrorContent = "Refresh token does not exist",
                         Success = false,
-                        statusCode = 403
+                        statusCode = 401
                     };
                 }
 
-                if (storedToken.isUsed)
+                if (storedToken.usageCount >= 5)
                 {
                     return new AuthResponse()
                     {
                         Token = null,
-                        ErrorContent = "Token has already been used",
+                        ErrorContent = "Token has exceeded its maximum usage",
                         Success = false,
-                        statusCode = 403
+                        statusCode = 401
                     };
                 }
 
@@ -131,7 +131,7 @@ namespace Server.Repositories
                         Token = null,
                         ErrorContent = "Token has been revoked!",
                         Success = false,
-                        statusCode = 401
+                        statusCode = 403
                     };
                 }
 
@@ -155,8 +155,11 @@ namespace Server.Repositories
                     jwtSettings.Secret.ToString()
                 );
 
-                storedToken.isUsed = true;
+                storedToken.usageCount++;
                 storedToken.token = authenticated.RefreshToken.token;
+                Console.WriteLine(storedToken.jwtAccessId);
+                Console.WriteLine(authenticated.RefreshToken.jwtAccessId);
+                storedToken.jwtAccessId = authenticated.RefreshToken.jwtAccessId;
 
                 var updateDef = userUpdate.Set(x => x.RefreshToken, storedToken);
                 await users.UpdateOneAsync(x => x.RefreshToken.userId == storedToken.userId, updateDef);

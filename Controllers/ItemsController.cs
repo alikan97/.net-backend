@@ -38,7 +38,7 @@ namespace Server.Controllers
 
         // GET Items/id
         [HttpGet("{id}")]
-        public async Task<ActionResult<ItemDto>> GetItemAsync(Guid id) { // In ASP core .NET v3? -> the suffix "Async" is removed, to fix rhis add controller to startup.cs
+        public async Task<ActionResult<ItemDto>> GetItemAsync([FromQuery] Guid id) { // In ASP core .NET v3? -> the suffix "Async" is removed, to fix rhis add controller to startup.cs
             var item = await repository.GetItemAsync(id);
             if (item is null) {
                 return NotFound();

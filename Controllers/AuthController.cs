@@ -86,6 +86,7 @@ namespace Server.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [Route("refresh")]
         public async Task<IActionResult> RefreshToken ([FromBody] TokenRequest tokenRequest)
         {
@@ -95,7 +96,7 @@ namespace Server.Controllers
 
             var result = await _userService.VerifyToken(tokenRequest);
 
-            if (!result.Success || result == null) return BadRequest(result);
+            if (!result.Success || result == null) return Unauthorized(result);
 
             return Ok(result);
         }
