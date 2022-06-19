@@ -11,6 +11,8 @@ using Server.Entities;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using AspNetCore.Identity.Mongo.Mongo;
+using Server.Utilities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Server.Repositories
 {
@@ -49,18 +51,20 @@ namespace Server.Repositories
                 FullName = user.FullName,
                 RefreshToken = null,
                 Email = user.Email,
-                Password = user.Password,
+                Password = passwordHasher.hashPassword(user.Password),
                 Roles = roles
             };
-
             await users.InsertOneAsync(newUser);
             return newUser;
         }
 
         public async Task<Object> Authenticate(UserLoginDto subjectUser)
         {
-            var user = await this.users.Find(x => x.Email == subjectUser.Email && x.Password == subjectUser.Password).FirstOrDefaultAsync();
+            var user = await this.users.Find(x => x.Email == subjectUser.Email).FirstOrDefaultAsync();
             if (user == null) return null;
+            
+            bool isCorrectPassword = passwordHasher.verifyPassword(user.Password, subjectUser.Password);
+            if (!isCorrectPassword) return null;
 
             var authenticated = JwtHelper.GetJwtToken(
                 user,
@@ -89,7 +93,7 @@ namespace Server.Repositories
                 // Validate against the validation parameters in startup.cs (Issuer, Audience, Expiry & Algorithm check)
                 var tokenVerification = tokenHandler.ValidateToken(tokenRequest.AccessToken, _tokenValidationParameters, out var tokeValidated);
 
-                var user = await users.Find(x => x.RefreshToken.token == tokenRequest.RefreshToken).FirstOrDefaultAsync(); // This thing fucks up on second use of refresh token
+                var user = await users.Find(x => x.RefreshToken.token == tokenRequest.RefreshToken).FirstOrDefaultAsync(); 
 
                 if (user == null) {
                     return new AuthResponse() {
@@ -157,8 +161,7 @@ namespace Server.Repositories
 
                 storedToken.usageCount++;
                 storedToken.token = authenticated.RefreshToken.token;
-                Console.WriteLine(storedToken.jwtAccessId);
-                Console.WriteLine(authenticated.RefreshToken.jwtAccessId);
+
                 storedToken.jwtAccessId = authenticated.RefreshToken.jwtAccessId;
 
                 var updateDef = userUpdate.Set(x => x.RefreshToken, storedToken);

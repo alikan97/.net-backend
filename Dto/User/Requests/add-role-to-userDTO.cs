@@ -10,7 +10,7 @@ namespace Server.Dtos
         public string Email { get; set; }
 
         [Required]
-        [RoleValidation]
+        [RoleValidationSingle]
         public string Role { get; set; }
     }
 }

@@ -16,12 +16,25 @@ namespace Server.Utilities
         public override bool IsValid(object value)
         {
             string[] arr = value as string[];
-
-            foreach(string i in arr) {
+            foreach (string i in arr)
+            {
                 if (!Enum.IsDefined(typeof(serverRoles), i))
                 {
                     return false;
                 }
+            }
+            return true;
+        }
+    }
+
+    public class RoleValidationSingle : ValidationAttribute
+    {
+        public override bool IsValid(object value)
+        {
+            string role = value as string;
+            if (!Enum.IsDefined(typeof(serverRoles), role))
+            {
+                return false;
             }
             return true;
         }

@@ -26,6 +26,10 @@ using Server.Repositories;
 using Server.Settings;
 using Server.Utilities;
 
+//TODO: OAUTH
+//TODO: COOKIES
+//TODO: CACHE
+
 namespace Server
 {
     public class Startup

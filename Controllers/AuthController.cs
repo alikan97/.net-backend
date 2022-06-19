@@ -5,6 +5,8 @@ using Server.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Server.Repositories;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace Server.Controllers
 {
@@ -75,7 +77,7 @@ namespace Server.Controllers
             var token = await _userService.Authenticate(user);
 
             if (token == null) return Unauthorized();
-
+            
             return Ok(new AuthResponse 
             {
                 statusCode = 200,
@@ -102,7 +104,7 @@ namespace Server.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut]
+        [HttpPatch]
         [Route("add-role-to-user")]
         public async Task<ActionResult> addRoleToUser ([FromBody] addRoleToUser role)
         {
