@@ -7,6 +7,10 @@ using System.Collections.Generic;
 using Server.Repositories;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Google;
+using System.Linq;
 
 namespace Server.Controllers
 {
@@ -26,11 +30,13 @@ namespace Server.Controllers
         public async Task<ActionResult<List<filteredUser>>> GetUsers()
         {
             var users = await _userService.GetUsers();
-            var filtered = new List<filteredUser> {};
-            
-            users.ForEach(x => {
+            var filtered = new List<filteredUser> { };
+
+            users.ForEach(x =>
+            {
                 filtered.Add(
-                    new filteredUser {
+                    new filteredUser
+                    {
                         Email = x.Email,
                         Id = x.Id,
                         Roles = x.Roles
@@ -46,7 +52,8 @@ namespace Server.Controllers
         public async Task<ActionResult<filteredUser>> GetUser(string email)
         {
             var user = await _userService.GetUser(email);
-            return new filteredUser {
+            return new filteredUser
+            {
                 Email = user.Email,
                 Id = user.Id,
                 Roles = user.Roles
@@ -56,29 +63,29 @@ namespace Server.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("register")]
-        public async Task<ActionResult<Guid>> Create ([FromBody] userRegistrationDto user)
+        public async Task<ActionResult<Guid>> Create([FromBody] userRegistrationDto user)
         {
             if (!ModelState.IsValid) return BadRequest("Bad Request");
-            
+
             var existingUser = await _userService.GetUser(user.Email);
             if (existingUser != null) return BadRequest("User already exists");
 
             var newUser = await _userService.Create(user);
-            if (newUser == null) return BadRequest(new {error = "Error occurred during creation"});
-            return Ok(new {newUser.Roles, newUser.Id});
+            if (newUser == null) return BadRequest(new { error = "Error occurred during creation" });
+            return Ok(new { newUser.Roles, newUser.Id });
         }
 
         [HttpPost]
         [Route("login")]
         [AllowAnonymous]
-        public async Task<ActionResult> Login ([FromBody] UserLoginDto user)
+        public async Task<ActionResult> Login([FromBody] UserLoginDto user)
         {
             if (!ModelState.IsValid) return BadRequest("Check your input");
             var token = await _userService.Authenticate(user);
 
             if (token == null) return Unauthorized();
-            
-            return Ok(new AuthResponse 
+
+            return Ok(new AuthResponse
             {
                 statusCode = 200,
                 ErrorContent = null,
@@ -90,10 +97,11 @@ namespace Server.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("refresh")]
-        public async Task<IActionResult> RefreshToken ([FromBody] TokenRequest tokenRequest)
+        public async Task<IActionResult> RefreshToken([FromBody] TokenRequest tokenRequest)
         {
-            if (!ModelState.IsValid) {
-                return BadRequest(new { Error = "Bad Request"});
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Error = "Bad Request" });
             }
 
             var result = await _userService.VerifyToken(tokenRequest);
@@ -106,9 +114,9 @@ namespace Server.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPatch]
         [Route("add-role-to-user")]
-        public async Task<ActionResult> addRoleToUser ([FromBody] addRoleToUser role)
+        public async Task<ActionResult> addRoleToUser([FromBody] addRoleToUser role)
         {
-            if (!ModelState.IsValid) return BadRequest(new GenericResponse{ ErrorContent = "Bad Request", statusCode = 404});
+            if (!ModelState.IsValid) return BadRequest(new GenericResponse { ErrorContent = "Bad Request", statusCode = 404 });
 
             var user = await _userService.GetUser(role.Email);
             await _userService.AddRoleToUser(user, role.Role);
@@ -119,10 +127,10 @@ namespace Server.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("test")]
-        public async Task<ActionResult> test ()
+        public async Task<ActionResult> test()
         {
             await _userService.Test();
-            
+
             return Ok();
         }
     }

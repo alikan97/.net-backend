@@ -72,11 +72,6 @@ namespace Server.Repositories
                 return null;
             }
         }
-        public async Task<IEnumerable<Item>> GetItemsAsync(string keyword)
-        {
-            var filter = filterBuilder.AnyEq("item.name", new BsonRegularExpression($".*{keyword}.*"));
-            return await itemsCollection.Find(filter).ToListAsync();
-        }
 
         public async Task updateItemAsync(Item item)
         {

@@ -26,10 +26,6 @@ using Server.Repositories;
 using Server.Settings;
 using Server.Utilities;
 
-//TODO: OAUTH
-//TODO: COOKIES
-//TODO: CACHE
-
 namespace Server
 {
     public class Startup
@@ -49,12 +45,12 @@ namespace Server
 
             var mongoDBSettings = Configuration.GetSection(nameof(MongoDBSettings)).Get<MongoDBSettings>();
             var JwtConfigSettings = Configuration.GetSection(nameof(JwtConfig)).Get<JwtConfig>();
+            var googleClientId = Configuration["Authentication:Google:ClientId"];
+            var googleClientSecret = Configuration["Authentication:Google:ClientSecret"];
 
             services.AddSingleton<IMongoDBSettings>(db => db.GetRequiredService<IOptions<MongoDBSettings>>().Value);
             services.AddScoped<UserService>();
             services.AddScoped<IInMenuItemsRepository,MongoDBItemsRepository>();
-            services.AddScoped<HouseRepository>();
-            
             // services.AddHostedService<TimedHostedService>();
 
             var key = System.Text.Encoding.ASCII.GetBytes(JwtConfigSettings.Secret.ToString());
